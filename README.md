@@ -29,3 +29,24 @@ Installeer de exacte library-afhankelijkheden om versiediscrepanties (zoals Auto
 
 ```bash
 pip install torch torchvision pandas scikit-image torchxrayvision plotly scipy tqdm mlflow pytorch-lightning==1.9.5 azureml-core
+
+##  Data & Bronvermelding
+
+Dit project werkt met medische gegevens die op de volgende wijze in de pijplijn worden geïntegreerd:
+
+### 1. DICOM Metadata
+De metadata (zoals `StudyDate_DICOM`, `PatientBirth`, `PatientSex_DICOM`) is afkomstig uit de DICOM-headers van de röntgenfoto's. Deze data wordt geëxtraheerd en opgeslagen in een `pneumo_dataset_ITI_rev.tsv` bestand.
+- **Waarom?** Deze velden zijn essentieel voor het monitoren van *Covariate Shift*: als de populatie in het ziekenhuis (bijv. de gemiddelde leeftijd) verandert, kan de nauwkeurigheid van de AI variëren.
+
+### 2. Medische Beelden
+De beelden worden ingeladen vanuit een lokale directory (`./test_beelden/`). 
+- **Verwerking**: De beelden worden in de pipeline genormaliseerd naar een consistent formaat (128x128 voor de VAE, 224x224 voor de DenseNet classifier).
+- **Privacy**: Om de privacy te waarborgen, worden de originele DICOM-bestanden direct na verwerking uit het geheugen gewist en worden alleen de geanonimiseerde 'latente vectoren' (vanuit de VAE) opgeslagen in de `pipeline_data` map.
+
+### 3. Visualisatie van de Pijplijn
+Hieronder zie je hoe de data stroomt van de ruwe bron naar het uiteindelijke dashboard:
+
+##  Databron & Erkenning
+Dit project maakt gebruik van de **PadChest** dataset voor de verwerking van röntgenfoto's. 
+- **Bron**: [BIMCV-PadChest COVID-19 Repository](https://github.com/BIMCV-CSUSP/BIMCV-COVID-19/tree/master/padchest-covid)
+- **Gebruik**: De data wordt in deze pipeline ingezet als testset voor het simuleren van drift-scenario's en het valideren van de modelrobuustheid. Wij danken de onderzoekers van BIMCV en CSUSP voor het beschikbaar stellen van deze waardevolle medische dataset.
